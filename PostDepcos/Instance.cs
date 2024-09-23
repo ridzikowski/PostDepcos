@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,22 +9,22 @@ namespace PostDepcos
 {
     internal class Instance
     {
-        int n {  get; set; }
-        int m { get; set; }
+        public int n {  get; set; }
+        public int m { get; set; }
 
-        int hub { get; set; }
-        int[] readyTimes { get; set; }
-        int[] deadlines { get; set; }
-        int[] piorities { get; set; }
-        int[] weights { get; set; }
-        int[] destinations { get; set; }
-        int[,] travelTimes { get; set; }
-        
-        int v { get; set; }
-        int capacity { get; set; }
-        int timeLimit { get; set; }
-        int parkingTime { get; set; }
-        int serviceTime { get; set; }
+        public int hub { get; set; }
+        public int[] readyTimes { get; set; }
+        public int[] deadlines { get; set; }
+        public int[] piorities { get; set; }
+        public int[] weights { get; set; }
+        public int[] destinations { get; set; }
+        public int[,] travelTimes { get; set; }
+
+        public int v { get; set; }
+        public int capacity { get; set; }
+        public int timeLimit { get; set; }
+        public int parkingTime { get; set; }
+        public int serviceTime { get; set; }
 
         public Instance(int n, int m, int v, int seed, int capacity, int timeLimit, int parkingTime=2,int serviceTime = 2, int maxWeights = 5, int maxReadyTime = 20, double speed = 1.0)
         {
@@ -46,9 +47,10 @@ namespace PostDepcos
                 {
                     for (int j = 0; j < 347; j++)
                     {
-                        // Console.WriteLine(data[i][j]);
-                        // travelTimes[i, j] = (int)Math.Round(double.Parse(data[i][j].Replace(".",","))); 
-                        travelTimes[i, j] = (int)Math.Round(double.Parse(data[i][j]));
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                            travelTimes[i, j] = (int)Math.Round(double.Parse(data[i][j]));
+                        else
+                            travelTimes[i, j] = (int)Math.Round(double.Parse(data[i][j].Replace(".", ",")));
 
                     }
                 }
@@ -71,7 +73,7 @@ namespace PostDepcos
             
         }
 
-        public List<int> evaluate(int[] pi)
+        public List<int> evaluate(List<int> pi)
         {
             int totalTime = 0;
             int currentCapacity = 0;
@@ -88,20 +90,15 @@ namespace PostDepcos
                 if (idx == -1)
                 {
                     currentTime += travelTimes[last, hub];
-                    if (currentCapacity > capacity || currentTime > timeLimit) return new List<int>(){-1,-1};
-                    totalTime += maxR + currentTime;
+                    if (currentCapacity > capacity || currentTime > timeLimit) return new List<int>(){int.MaxValue, int.MaxValue };
+                    totalTime += currentTime;
 
                     for(int i = 0; i < times.Count; i++) 
                     {
                         int T = times[i] + maxR - deadlines[orders[i]];
-                        Console.WriteLine(times[i]);
-                        Console.WriteLine(maxR);
-                        Console.WriteLine(deadlines[orders[i]]);
                         totalPenalty += Math.Max(0, T) * piorities[orders[i]];
-                        Console.WriteLine(piorities[orders[i]]);
                     }
                         
-
 
                     //new vehicle
                     times.Clear();
@@ -118,9 +115,6 @@ namespace PostDepcos
                     
                     if (last != dest) currentTime += parkingTime;
                     currentTime += travelTimes[last, dest] + serviceTime;
-                    Console.WriteLine($"test travel {travelTimes[0, 14] } ");
-                    Console.WriteLine($"last: {last} dest: {destinations[idx]} and parking: {parkingTime} travel: {travelTimes[last, dest] } and service: {serviceTime}");
-                    Console.WriteLine($"current time: {currentTime} and idex: {idx}");
                     times.Add(currentTime);
                     orders.Add(idx);
                     currentCapacity += weights[idx];
@@ -133,9 +127,9 @@ namespace PostDepcos
             return new List<int>() { totalTime, totalPenalty };
         }
 
-        public int[] getRandom(int seed)
+        public List<int> getRandom(int seed)
         {
-            int [] pi = Enumerable.Repeat(0, n + v + 1).Select(x => -1).ToArray();
+            List<int> pi = Enumerable.Repeat(0, n + v + 1).Select(x => -1).ToList();
             
             Random random = new Random(seed);
             int[] orders = Enumerable.Range(0, n).ToArray();
@@ -143,17 +137,17 @@ namespace PostDepcos
             int currentCapacity = 0;
             int currentTime = 0;
             int last = hub;
-            int maxR = 0;
+            //int maxR = 0;
             int idx = 1;
             foreach (int order in orders)
             {
-                Console.WriteLine(String.Join(" ", pi));
+                //Console.WriteLine(String.Join(" ", pi));
                 int w = weights[order];
                 int dest = destinations[order];
                 int travel = travelTimes[last, dest];
-                if (maxR < readyTimes[order]) maxR = readyTimes[order];
+                //if (maxR < readyTimes[order]) maxR = readyTimes[order];
                 int comeback = travelTimes[dest, hub];
-                int approximate = maxR + travelTimes[last, dest] + comeback + serviceTime;
+                int approximate = travelTimes[last, dest] + comeback + serviceTime;
                 if (dest != last) approximate += parkingTime;
                 if ((currentCapacity + w <= capacity) && (currentTime + approximate <= timeLimit))
                 {
@@ -169,14 +163,32 @@ namespace PostDepcos
                     
                     currentCapacity = w;
                     currentTime = travelTimes[hub, dest] + serviceTime + parkingTime;
-                    maxR = readyTimes[order];
+                    //maxR = readyTimes[order];
                 }
                 idx++;
                 last = dest;
             }
-
             return pi;
         }
 
+
+        public override string ToString()
+        {
+            string str = string.Empty;
+            str += $"{n} x {m}\n";
+            str += "r: "+String.Join(" ", readyTimes) + "\n";
+            str += "d: " + String.Join(" ", deadlines) + "\n";
+            str += "p: " + String.Join(" ", piorities) + "\n";
+            str += "w: " + String.Join(" ", weights) + "\n";
+            str += "t: " + String.Join(" ", destinations) + "\n";
+
+            return str;
+        }
+
+        //does S1 dominates S2
+        public static bool dominates(int s1c1, int s1c2, int s2c1, int s2c2)
+        {
+            return (s1c1 <= s2c1 && s1c2 <= s2c2) && (s1c1 < s2c1 || s1c2 < s2c2);
+        }
     }
 }
