@@ -25,7 +25,7 @@ namespace PostDepcos
         int parkingTime { get; set; }
         int serviceTime { get; set; }
 
-        public Instance(int n, int m, int v, int seed, int capacity, int timeLimit, int parkingTime=2, int maxWeights = 5, int maxReadyTime = 20, double speed = 1.0)
+        public Instance(int n, int m, int v, int seed, int capacity, int timeLimit, int parkingTime=2,int serviceTime = 2, int maxWeights = 5, int maxReadyTime = 20, double speed = 1.0)
         {
             this.n = n;
             this.m = m;
@@ -35,6 +35,7 @@ namespace PostDepcos
             this.capacity = capacity;
             this.timeLimit = timeLimit;
             this.parkingTime = parkingTime;
+            this.serviceTime = serviceTime;
             var filePath = @"travelMatrixosrm.csv";
             var data = File.ReadLines(filePath).Select(x => x.Split(',')).ToArray();
             
@@ -45,7 +46,10 @@ namespace PostDepcos
                 {
                     for (int j = 0; j < 347; j++)
                     {
-                        travelTimes[i, j] = (int)Math.Round(double.Parse(data[i][j].Replace(".",",")));
+                        // Console.WriteLine(data[i][j]);
+                        // travelTimes[i, j] = (int)Math.Round(double.Parse(data[i][j].Replace(".",","))); 
+                        travelTimes[i, j] = (int)Math.Round(double.Parse(data[i][j]));
+
                     }
                 }
             }
@@ -67,7 +71,7 @@ namespace PostDepcos
             
         }
 
-        public List<int> evalute(int[] pi)
+        public List<int> evaluate(int[] pi)
         {
             int totalTime = 0;
             int currentCapacity = 0;
@@ -76,15 +80,32 @@ namespace PostDepcos
             int maxR = 0;
             int last = hub;
 
+            List<int> times = new List<int>();
+            List<int> orders = new List<int>();
+
             foreach (int idx in pi)
             {
                 if (idx == -1)
                 {
-                    currentTime += maxR + travelTimes[last, hub];
-                    if (currentCapacity > capacity || currentTime > timeLimit) return new List<int>();
+                    currentTime += travelTimes[last, hub];
+                    if (currentCapacity > capacity || currentTime > timeLimit) return new List<int>(){-1,-1};
+                    totalTime += maxR + currentTime;
 
-                    totalTime += currentTime;
+                    for(int i = 0; i < times.Count; i++) 
+                    {
+                        int T = times[i] + maxR - deadlines[orders[i]];
+                        Console.WriteLine(times[i]);
+                        Console.WriteLine(maxR);
+                        Console.WriteLine(deadlines[orders[i]]);
+                        totalPenalty += Math.Max(0, T) * piorities[orders[i]];
+                        Console.WriteLine(piorities[orders[i]]);
+                    }
+                        
+
+
                     //new vehicle
+                    times.Clear();
+                    orders.Clear();
                     currentCapacity = 0;
                     currentTime = 0;
                     maxR = 0;
@@ -94,10 +115,16 @@ namespace PostDepcos
                 {
                     if (readyTimes[idx] > maxR) maxR = readyTimes[idx];
                     int dest = destinations[idx];
-                    currentTime += travelTimes[last, dest] + serviceTime;
-                    currentCapacity += weights[idx];
+                    
                     if (last != dest) currentTime += parkingTime;
-                    totalPenalty += Math.Max(0, currentTime - deadlines[idx]) * piorities[idx];
+                    currentTime += travelTimes[last, dest] + serviceTime;
+                    Console.WriteLine($"test travel {travelTimes[0, 14] } ");
+                    Console.WriteLine($"last: {last} dest: {destinations[idx]} and parking: {parkingTime} travel: {travelTimes[last, dest] } and service: {serviceTime}");
+                    Console.WriteLine($"current time: {currentTime} and idex: {idx}");
+                    times.Add(currentTime);
+                    orders.Add(idx);
+                    currentCapacity += weights[idx];
+                    
                     last = dest;
                 }
 
@@ -109,6 +136,7 @@ namespace PostDepcos
         public int[] getRandom(int seed)
         {
             int [] pi = Enumerable.Repeat(0, n + v + 1).Select(x => -1).ToArray();
+            
             Random random = new Random(seed);
             int[] orders = Enumerable.Range(0, n).ToArray();
             random.Shuffle(orders);
@@ -119,6 +147,7 @@ namespace PostDepcos
             int idx = 1;
             foreach (int order in orders)
             {
+                Console.WriteLine(String.Join(" ", pi));
                 int w = weights[order];
                 int dest = destinations[order];
                 int travel = travelTimes[last, dest];
