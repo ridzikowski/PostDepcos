@@ -13,6 +13,39 @@ namespace PostDepcos
     {
         int[] orders;
         
+        
+
+        public static int af = -1;
+        public static int df = -1;
+        public static int wf = -1;
+        public static int pf = -1;
+        public static int dmaf = -1;
+        public static int rev = -1;
+
+        public static int[] SortBySilly(Instance inst)
+        {
+            double[] array = new double[inst.n];
+            for (int i = 0; i < inst.n;++i)
+            {
+                double an = (af == 1 ? inst.readyTimes[i] : 1);
+                double dn = (df == 1 ? inst.deadlines[i] : 1);
+                double wn = (wf == 1 ? inst.weights[i] : 1);
+                double pn = (pf == 1 ? inst.piorities[i] : 1);
+                double dman = (dmaf == 1 ? (inst.deadlines[i] - inst.readyTimes[i]) : 1);
+
+                double ad = (af == -1 ? inst.readyTimes[i] : 1);
+                double dd = (df == -1 ? inst.deadlines[i] : 1);
+                double wd = (wf == -1 ? inst.weights[i] : 1);
+                double pd = (pf == -1 ? inst.piorities[i] : 1);
+                double dmad = (dmaf == -1 ? (inst.deadlines[i] - inst.readyTimes[i]) : 1);
+
+                array[i] = (an * dn * wn * pn * dman) / (ad * dd * wd * pd * dmad) * rev;
+                
+            }
+            var sorted = array.Select((x, index) => new { x, index }).OrderBy(y => y.x).ToArray();
+            int[] orders = Enumerable.Range(0, inst.n).ToArray();
+            return sorted.Select(x => orders[x.index]).ToArray();
+        }
 
         public static int[] SortByDeadlinesInc(Instance inst)
         {
@@ -29,14 +62,15 @@ namespace PostDepcos
         }
 
 
-        public Greedy(Instance instance, SortFunction sortFunction) {
+        public List<Solution> run(Instance instance, SortFunction sortFunction)
+        {
 
             orders = sortFunction(instance);
             List<int> pi = Enumerable.Repeat(0, instance.v + 1).Select(x => -1).ToList();
             List<int> F1 = new List<int>();
             List<int> F2 = new List<int>();
             List<Solution> front = new List<Solution>();
-            for (int o =0; o<orders.Length; o++)
+            for (int o = 0; o < orders.Length; o++)
             {
                 int i = orders[o];
                 if (o < orders.Length - 1)
@@ -48,14 +82,14 @@ namespace PostDepcos
                     var result = instance.evaluate(pi);
                     F1.Add(result[0]);
                     F2.Add(result[1]);
-                    for (int j = 1; j < pi.Count-2; j++)
+                    for (int j = 1; j < pi.Count - 2; j++)
                     {
-                        (pi[j], pi[j+1]) = (pi[j+1], pi[j]);
+                        (pi[j], pi[j + 1]) = (pi[j + 1], pi[j]);
                         result = instance.evaluate(pi);
                         F1.Add(result[0]);
                         F2.Add(result[1]);
                     }
-                    int bestPos = instance.TOPSIS(F1,F2) + 1;
+                    int bestPos = instance.TOPSIS(F1, F2) + 1;
 
                     //double avg = 0;
                     //for (int j = 0; j < F1.Count; j++) avg += (double)F1[j] / F2[j];
@@ -100,9 +134,9 @@ namespace PostDepcos
                 }
 
             }
-            foreach (var sol in front)
-                Console.WriteLine(sol);
-
+            //foreach (var sol in front)
+            //    Console.WriteLine(sol);
+            return front;
         }
 
     }

@@ -11,9 +11,10 @@
             var pi = instance.getRandom(1);
             var result = instance.evaluate(pi);
             Console.WriteLine($"f1(pi):{result[0]}, f2(pi):{result[1]}");
-            Greedy greedy = new Greedy(instance, Greedy.SortByDeadlinesInc);
+            Greedy greedy = new Greedy();
+            greedy.run(instance, Greedy.SortByDeadlinesInc);
             Console.WriteLine();
-            greedy = new Greedy(instance, Greedy.SortByDeadlinesDec);
+            greedy.run(instance, Greedy.SortByDeadlinesDec);
 
             //Console.WriteLine(Instance.dominates(2, 2, 2, 2));
 
@@ -29,6 +30,8 @@
 
             //var t = instance.TOPSIS(new List<int>() { 2, 3, 5, 6, 10 }, new List<int>() { 10, 7, 5, 4, 3 });
             //Console.WriteLine(t);
+
+            GreedyTrail trail = new GreedyTrail();
         }
     }
 }
