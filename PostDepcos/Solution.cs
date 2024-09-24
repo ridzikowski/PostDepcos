@@ -14,7 +14,7 @@ namespace PostDepcos
 
         public override string ToString()
         {
-            return $"F1: {crit1} F2: {crit2}" + String.Join(" ", pi);
+            return $"F1: {crit1} F2: {crit2} pi: " + String.Join(" ", pi);
         }
     }
 }

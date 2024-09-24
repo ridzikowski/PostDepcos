@@ -56,6 +56,7 @@ namespace PostDepcos
                     for (int j = 1; j < pi.Count-2; j++)
                     {
                         (pi[j], pi[j+1]) = (pi[j+1], pi[j]);
+                        //Console.WriteLine(String.Join(" ", pi));
                         result = instance.evaluate(pi);
                         F1.Add(result[0]);
                         F2.Add(result[1]);
@@ -65,21 +66,24 @@ namespace PostDepcos
                     for (int j = 0; j < F1.Count; j++) avg += (double)F1[j] / F2[j];
                     avg /= F1.Count;
                     double bestVal = F1[0] * avg + F2[0];
-                    int bestPos = 0;
+                    int bestPos = 1;
                     for (int j = 1; j < F1.Count; j++)
-                        if (F1[j] * avg + F2[j] > bestVal)
+                        if (F1[j] * avg + F2[j] < bestVal)
                         {
                             bestVal = F1[j] * avg + F2[j];
-                            bestPos = j;
+                            bestPos = j+1;
                         }
-                    (pi[pi.Count - 2], pi[bestPos]) = (pi[bestPos], pi[pi.Count - 2]);
+                    //(pi[pi.Count - 2], pi[bestPos]) = (pi[bestPos], pi[pi.Count - 2]);
+                    pi.RemoveAt(pi.Count - 2);
+                    pi.Insert(bestPos, i);
+                    //Console.WriteLine(String.Join(" ", pi));
                 }
                 else
                 {
                     for (int j = 1; j < pi.Count - 2; j++)
                     {
                         (pi[j], pi[j + 1]) = (pi[j + 1], pi[j]);
-                        Console.WriteLine(String.Join(" ", pi));
+                        //Console.WriteLine(String.Join(" ", pi));
                         bool dominated = false;
                         var result = instance.evaluate(pi);
 
