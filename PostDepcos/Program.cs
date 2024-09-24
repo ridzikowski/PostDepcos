@@ -12,7 +12,23 @@
             var result = instance.evaluate(pi);
             Console.WriteLine($"f1(pi):{result[0]}, f2(pi):{result[1]}");
             Greedy greedy = new Greedy(instance, Greedy.SortByDeadlinesInc);
-            //greedy = new Greedy(instance, Greedy.SortByDeadlinesDec);
+            Console.WriteLine();
+            greedy = new Greedy(instance, Greedy.SortByDeadlinesDec);
+
+            //Console.WriteLine(Instance.dominates(2, 2, 2, 2));
+
+            //var front = new List<Solution>() { 
+            //    new Solution() {crit1 = 2, crit2 = 10 }, 
+            //    new Solution() { crit1 = 3, crit2 = 7 },
+            //    new Solution() {crit1 = 5, crit2 = 5 },
+            //    new Solution() {crit1 = 6, crit2 = 4 },
+            //    new Solution() {crit1 = 10, crit2 = 3 }
+            //};
+            //var x = instance.hvi(front, 12, 12);
+            //Console.WriteLine(x);
+
+            //var t = instance.TOPSIS(new List<int>() { 2, 3, 5, 6, 10 }, new List<int>() { 10, 7, 5, 4, 3 });
+            //Console.WriteLine(t);
         }
     }
 }

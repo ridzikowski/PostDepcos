@@ -190,5 +190,88 @@ namespace PostDepcos
         {
             return (s1c1 <= s2c1 && s1c2 <= s2c2) && (s1c1 < s2c1 || s1c2 < s2c2);
         }
+
+
+        public double hvi(List<Solution> front, double z1, double z2)
+        {
+            double volume = 0;
+
+            front = front.OrderBy(solution => solution.crit1).ToList();
+            for (int i = 0; i < front.Count - 1; i++)
+            {
+                volume += (front[i + 1].crit1 - front[i].crit1) * (z2 - front[i].crit2);
+            }
+
+            volume += (z1 - front[front.Count-1].crit1) * (z2 - front[front.Count-1].crit2);
+
+            return volume;
+        }
+
+        public List<double> hvis(List<List<Solution>> fronts, double multiplier = 1.2)
+        {
+            List<double> volumes = new List<double>();
+            double z1 = -1, z2 = -1;
+            foreach (var front in fronts) 
+                foreach (var sol in front)
+                {
+                    if (sol.crit1 > z1) z1 = sol.crit1;
+                    if (sol.crit2 > z2) z2 = sol.crit2;
+                }
+            z1 *= multiplier;
+            z2 *= multiplier;
+            foreach(var front in fronts) volumes.Add(hvi(front, z1, z2));
+            
+            return volumes;
+        }
+
+        public int TOPSIS(List<int> F1, List<int> F2)
+        {
+            int m = F1.Count;
+            int n = 2;
+            double root1=0, root2=0;
+
+            double[,] r = new double[m,n];
+
+            double Aw1 = -1, Ab1 = Double.MaxValue;
+            double Aw2 = -1, Ab2 = Double.MaxValue;
+
+            for (int k = 0;k< m; k++)
+            {
+                root1 += F1[k]* F1[k];
+                root2 += F2[k]* F2[k];
+            }
+            root1 = Math.Sqrt(root1);
+            root2 = Math.Sqrt(root2);
+
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    r[i, j] = (j == 0 ? (root1 == 0 ? F1[i] : F1[i] / root1) : (root2 == 0 ? F2[i] : F2[i] / root2)) * 0.5;
+                }
+                if (r[i, 0] > Aw1) Aw1 = r[i, 0];
+                if (r[i, 1] > Aw2) Aw2 = r[i, 1];
+
+                if (r[i, 0] < Ab1) Ab1 = r[i, 0];
+                if (r[i, 1] < Ab2) Ab2 = r[i, 1];
+            }
+
+            List<double> diw = new List<double>();
+            List<double> dib = new List<double>();
+            for (int i = 0; i < m; i++)
+            {
+                diw.Add(Math.Sqrt((r[i,0] - Aw1) * (r[i, 0] - Aw1) + (r[i, 1] - Aw2) * (r[i, 1] - Aw2)));
+                dib.Add(Math.Sqrt((r[i,0] - Ab1) * (r[i, 0] - Ab1) + (r[i, 1] - Ab2) * (r[i, 1] - Ab2)));
+            }
+
+            List<double> siw = new List<double>();
+            for (int i = 0; i < m; i++) siw.Add((diw[i] + dib[i]) == 0 ? diw[i] : diw[i] / (diw[i] + dib[i]));
+
+            var max = siw.Max();
+            var idx = siw.IndexOf(max);
+            return idx;
+        }
+
+
     }
 }
