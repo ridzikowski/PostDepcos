@@ -13,9 +13,9 @@ namespace PostDepcos
         public int m { get; set; }
 
         public int hub { get; set; }
-        public int[] readyTimes { get; set; }
+        public int[] arrivals { get; set; }
         public int[] deadlines { get; set; }
-        public int[] piorities { get; set; }
+        public int[] priorities { get; set; }
         public int[] weights { get; set; }
         public int[] destinations { get; set; }
         public int[,] travelTimes { get; set; }
@@ -64,11 +64,11 @@ namespace PostDepcos
                 if (!location.Contains(val)) { location.Add(val); }
             }
             location.Sort();
-            readyTimes = Enumerable.Repeat(0, n).Select(i => rng.Next(maxReadyTime)).ToArray();
+            arrivals = Enumerable.Repeat(0, n).Select(i => rng.Next(maxReadyTime)).ToArray();
             destinations = new int[n];
             for (int i = 0; i < destinations.Length; i++) destinations[i] = location[rng.Next(0, location.Count)];
-            piorities = Enumerable.Repeat(0, n).Select(i => rng.Next(1,10)).ToArray();
-            deadlines = Enumerable.Repeat(0, n).Select(i => readyTimes[i] + rng.Next(60, 120)).ToArray();
+            priorities = Enumerable.Repeat(0, n).Select(i => rng.Next(1,10)).ToArray();
+            deadlines = Enumerable.Repeat(0, n).Select(i => arrivals[i] + rng.Next(60, 120)).ToArray();
             weights = Enumerable.Repeat(0, n).Select(i => rng.Next(maxWeights)).ToArray();
             
         }
@@ -96,7 +96,7 @@ namespace PostDepcos
                     for(int i = 0; i < times.Count; i++) 
                     {
                         int T = times[i] + maxR - deadlines[orders[i]];
-                        totalPenalty += Math.Max(0, T) * piorities[orders[i]];
+                        totalPenalty += Math.Max(0, T) * priorities[orders[i]];
                     }
                         
 
@@ -110,7 +110,7 @@ namespace PostDepcos
                 }
                 else
                 {
-                    if (readyTimes[idx] > maxR) maxR = readyTimes[idx];
+                    if (arrivals[idx] > maxR) maxR = arrivals[idx];
                     int dest = destinations[idx];
                     
                     if (last != dest) currentTime += parkingTime;
@@ -176,9 +176,9 @@ namespace PostDepcos
         {
             string str = string.Empty;
             str += $"{n} x {m}\n";
-            str += "r: "+String.Join(" ", readyTimes) + "\n";
+            str += "r: "+String.Join(" ", arrivals) + "\n";
             str += "d: " + String.Join(" ", deadlines) + "\n";
-            str += "p: " + String.Join(" ", piorities) + "\n";
+            str += "p: " + String.Join(" ", priorities) + "\n";
             str += "w: " + String.Join(" ", weights) + "\n";
             str += "t: " + String.Join(" ", destinations) + "\n";
 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PostDepcos
 {
@@ -15,29 +16,40 @@ namespace PostDepcos
         
         
 
-        public static int af = -1;
-        public static int df = -1;
-        public static int wf = -1;
+        public static int af = 0;
+        public static int df = 0;
+        public static int wf = 0;
         public static int pf = -1;
-        public static int dmaf = -1;
-        public static int rev = -1;
+        public static int dmaf = 1;
+        public static int rev = 1;
+
+
+        public static int[] SortDiffDeadlinesAndArrivalByPiorities(Instance inst)
+        {
+            double[] array = new double[inst.n];
+            for (int i = 0; i < inst.n; ++i) array[i] = (inst.deadlines[i] - inst.arrivals[i])/inst.priorities[i];
+
+            var sorted = array.Select((x, index) => new { x, index }).OrderBy(y => y.x).ToArray();
+            int[] orders = Enumerable.Range(0, inst.n).ToArray();
+            return sorted.Select(x => orders[x.index]).ToArray();
+        }
 
         public static int[] SortBySilly(Instance inst)
         {
             double[] array = new double[inst.n];
             for (int i = 0; i < inst.n;++i)
             {
-                double an = (af == 1 ? inst.readyTimes[i] : 1);
+                double an = (af == 1 ? inst.arrivals[i] : 1);
                 double dn = (df == 1 ? inst.deadlines[i] : 1);
                 double wn = (wf == 1 ? inst.weights[i] : 1);
-                double pn = (pf == 1 ? inst.piorities[i] : 1);
-                double dman = (dmaf == 1 ? (inst.deadlines[i] - inst.readyTimes[i]) : 1);
+                double pn = (pf == 1 ? inst.priorities[i] : 1);
+                double dman = (dmaf == 1 ? (inst.deadlines[i] - inst.arrivals[i]) : 1);
 
-                double ad = (af == -1 ? inst.readyTimes[i] : 1);
+                double ad = (af == -1 ? inst.arrivals[i] : 1);
                 double dd = (df == -1 ? inst.deadlines[i] : 1);
                 double wd = (wf == -1 ? inst.weights[i] : 1);
-                double pd = (pf == -1 ? inst.piorities[i] : 1);
-                double dmad = (dmaf == -1 ? (inst.deadlines[i] - inst.readyTimes[i]) : 1);
+                double pd = (pf == -1 ? inst.priorities[i] : 1);
+                double dmad = (dmaf == -1 ? (inst.deadlines[i] - inst.arrivals[i]) : 1);
 
                 array[i] = (an * dn * wn * pn * dman) / (ad * dd * wd * pd * dmad) * rev;
                 
