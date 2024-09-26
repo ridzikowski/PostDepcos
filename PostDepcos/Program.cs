@@ -12,9 +12,10 @@
             var result = instance.evaluate(pi);
             Console.WriteLine($"f1(pi):{result[0]}, f2(pi):{result[1]}");
             Greedy greedy = new Greedy();
-            greedy.run(instance, Greedy.SortByDeadlinesInc);
+            var front = greedy.run(instance, Greedy.SortByDeadlinesInc);
+            foreach (var sol in front)
+                Console.WriteLine(sol);
             Console.WriteLine();
-            greedy.run(instance, Greedy.SortByDeadlinesDec);
 
             //Console.WriteLine(Instance.dominates(2, 2, 2, 2));
 
@@ -31,7 +32,11 @@
             //var t = instance.TOPSIS(new List<int>() { 2, 3, 5, 6, 10 }, new List<int>() { 10, 7, 5, 4, 3 });
             //Console.WriteLine(t);
 
-            GreedyTrail trail = new GreedyTrail();
+            //GreedyTrail trail = new GreedyTrail();
+            TabuSearch search = new TabuSearch();
+            front =  search.run(instance, 100000);
+            foreach (var sol in front)
+                Console.WriteLine(sol);
         }
     }
 }
