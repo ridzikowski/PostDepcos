@@ -23,13 +23,13 @@ namespace PostDepcos
             Solution curr = front[instance.TOPSIS(F1, F2)];
 
             int[,] tabuList = new int[curr.pi.Count, curr.pi.Count];
-            for (int i = 0; i < curr.pi.Count; ++i)
-            {
-                for (int j = 0; j < curr.pi.Count; ++j)
-                {
-                    tabuList[i, j] = 0;
-                }
-            }
+            //for (int i = 0; i < curr.pi.Count; ++i)
+            //{
+            //    for (int j = 0; j < curr.pi.Count; ++j)
+            //    {
+            //        tabuList[i, j] = 0;
+            //    }
+            //}
 
             int cadence = (int)(Math.Sqrt(curr.pi.Count));
 

@@ -12,10 +12,6 @@ namespace PostDepcos
     delegate int[] SortFunction(Instance instance);
     internal class Greedy
     {
-        int[] orders;
-        
-        
-
         public static int af = 0;
         public static int df = 0;
         public static int wf = 0;
@@ -77,7 +73,7 @@ namespace PostDepcos
         public List<Solution> run(Instance instance, SortFunction sortFunction)
         {
 
-            orders = sortFunction(instance);
+            int[]  orders = sortFunction(instance);
             List<int> pi = Enumerable.Repeat(0, instance.v + 1).Select(x => -1).ToList();
             List<int> F1 = new List<int>();
             List<int> F2 = new List<int>();
@@ -146,8 +142,6 @@ namespace PostDepcos
                 }
 
             }
-            //foreach (var sol in front)
-            //    Console.WriteLine(sol);
             return front;
         }
 

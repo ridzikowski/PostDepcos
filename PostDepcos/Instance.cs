@@ -69,7 +69,7 @@ namespace PostDepcos
             for (int i = 0; i < destinations.Length; i++) destinations[i] = location[rng.Next(0, location.Count)];
             priorities = Enumerable.Repeat(0, n).Select(i => rng.Next(1,10)).ToArray();
             deadlines = Enumerable.Repeat(0, n).Select(i => arrivals[i] + rng.Next(60, 120)).ToArray();
-            weights = Enumerable.Repeat(0, n).Select(i => rng.Next(maxWeights)).ToArray();
+            weights = Enumerable.Repeat(0, n).Select(i => rng.Next(1, maxWeights)).ToArray();
             
         }
 
@@ -272,6 +272,59 @@ namespace PostDepcos
             return idx;
         }
 
+        public List<double> TOPSIS(List<Solution> solutions)
+        {
+            List<int> F1 = new List<int>(), F2 = new List<int>();
+            foreach (Solution s in solutions)
+            {
+                F1.Add(s.crit1);
+                F2.Add(s.crit2);
+            }
+            int m = F1.Count;
+            int n = 2;
+            double root1 = 0, root2 = 0;
+
+            double[,] r = new double[m, n];
+
+            double Aw1 = -1, Ab1 = Double.MaxValue;
+            double Aw2 = -1, Ab2 = Double.MaxValue;
+
+            for (int k = 0; k < m; k++)
+            {
+                root1 += F1[k] * F1[k];
+                root2 += F2[k] * F2[k];
+            }
+            root1 = Math.Sqrt(root1);
+            root2 = Math.Sqrt(root2);
+
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    r[i, j] = (j == 0 ? (root1 == 0 ? F1[i] : F1[i] / root1) : (root2 == 0 ? F2[i] : F2[i] / root2)) * 0.5;
+                }
+                if (r[i, 0] > Aw1) Aw1 = r[i, 0];
+                if (r[i, 1] > Aw2) Aw2 = r[i, 1];
+
+                if (r[i, 0] < Ab1) Ab1 = r[i, 0];
+                if (r[i, 1] < Ab2) Ab2 = r[i, 1];
+            }
+
+            List<double> diw = new List<double>();
+            List<double> dib = new List<double>();
+            for (int i = 0; i < m; i++)
+            {
+                diw.Add(Math.Sqrt((r[i, 0] - Aw1) * (r[i, 0] - Aw1) + (r[i, 1] - Aw2) * (r[i, 1] - Aw2)));
+                dib.Add(Math.Sqrt((r[i, 0] - Ab1) * (r[i, 0] - Ab1) + (r[i, 1] - Ab2) * (r[i, 1] - Ab2)));
+            }
+
+            List<double> siw = new List<double>();
+            for (int i = 0; i < m; i++) siw.Add((diw[i] + dib[i]) == 0 ? diw[i] : diw[i] / (diw[i] + dib[i]));
+
+            //var max = siw.Max();
+            //var idx = siw.IndexOf(max);
+            return siw;
+        }
 
     }
 }

@@ -13,6 +13,7 @@
             Console.WriteLine($"f1(pi):{result[0]}, f2(pi):{result[1]}");
             Greedy greedy = new Greedy();
             var front = greedy.run(instance, Greedy.SortByDeadlinesInc);
+            Console.WriteLine("Greedy");
             foreach (var sol in front)
                 Console.WriteLine(sol);
             Console.WriteLine();
@@ -33,10 +34,20 @@
             //Console.WriteLine(t);
 
             //GreedyTrail trail = new GreedyTrail();
+            Console.WriteLine("TS");
             TabuSearch search = new TabuSearch();
-            front =  search.run(instance, 100000);
+            front =  search.run(instance, 50);
             foreach (var sol in front)
                 Console.WriteLine(sol);
+
+            Console.WriteLine();
+            Console.WriteLine("GA");
+            GeneticAlgortihm geneticAlgortihm = new GeneticAlgortihm();
+            front = geneticAlgortihm.run(instance, 50);
+            foreach (var sol in front)
+                Console.WriteLine(sol);
+
+
         }
     }
 }
