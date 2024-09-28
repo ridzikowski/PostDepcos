@@ -21,6 +21,7 @@ namespace PostDepcos
         {
             instance = inst;
             random = new Random(1);
+            //List<List<Solution>> fronts = new List<List<Solution>>();
             List<Solution> front = new List<Solution>();
             List<Solution> population = new List<Solution>();
             for (int i = 0; i < popSize; i++)
@@ -36,6 +37,7 @@ namespace PostDepcos
                 population.Add(new Solution() { pi = pi, crit1 = result[0], crit2 = result[1] });
             }
             front = checkFront(population, front);
+            //fronts.Add(new List<Solution>(front));
             for (int iter = 0; iter < maxIter; iter++)
             {
                 population = selection(population, (int)Math.Round(Math.Sqrt(popSize)));
@@ -43,8 +45,10 @@ namespace PostDepcos
                 front = checkFront(population, front);
                 population = mutation(population);
                 front = checkFront(population, front);
+                //fronts.Add(new List<Solution>(front));
             }
-
+            //var h = instance.hvis(fronts);
+            //Console.WriteLine("hvies " + string.Join("\n", h));
             return front;
         }
 
@@ -93,7 +97,7 @@ namespace PostDepcos
                         rank = ranks[newIdx];
                     }
                 }
-                parents.Add(population[idx]);
+                parents.Add(new Solution (population[idx]));
             }
 
             return parents;
@@ -188,7 +192,7 @@ namespace PostDepcos
                     childs.Add(child);
                 }
                 else
-                    childs.Add(parent);
+                    childs.Add(new Solution(parent));
             }    
 
             return childs;
@@ -209,11 +213,11 @@ namespace PostDepcos
                     mutant.crit1 = result[0];
                     mutant.crit2 = result[1];
                     if (mutant.crit1 < int.MaxValue) mutants.Add(mutant);
-                    else mutants.Add(parent);
+                    else mutants.Add(new Solution(parent));
 
                 }
                 else
-                    mutants.Add(parent);
+                    mutants.Add(new Solution(parent));
             }
             return mutants;
         }

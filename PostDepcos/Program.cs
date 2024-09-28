@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            
+            List<List<Solution>> fronts = new List<List<Solution>>();
             Instance instance = new Instance(20,50,10,1,100,240);
             Console.WriteLine(instance.ToString());
             //int [] pi = {-1,1,-1};
@@ -22,13 +22,13 @@
             foreach (var sol in front)
                 Console.WriteLine(sol);
             Console.WriteLine();
-
+            fronts.Add(new List<Solution>(front));
             front = greedy.run(instance, Greedy.SortArrivalDiffAndPioritiesAndDiffByDeadlinesAndWeightsRev);
-            Console.WriteLine("Greedy new");
-            foreach (var sol in front)
-                Console.WriteLine(sol);
-            Console.WriteLine();
-
+            //Console.WriteLine("Greedy new");
+            //foreach (var sol in front)
+            //    Console.WriteLine(sol);
+            //Console.WriteLine();
+            //fronts.Add(new List<Solution>(front));
             //Console.WriteLine(Instance.dominates(2, 2, 2, 2));
 
             //var front = new List<Solution>() { 
@@ -47,36 +47,40 @@
             //GreedyTrail trail = new GreedyTrail();
             Console.WriteLine("TS");
             TabuSearch search = new TabuSearch();
-            front = search.run(instance, 50);
-            foreach (var sol in front)
-                Console.WriteLine(sol);
+            front = search.run(instance, 500);
+            fronts.Add(new List<Solution>(front));
+            //foreach (var sol in front)
+            //    Console.WriteLine(sol);
 
-            Console.WriteLine();
-            Console.WriteLine("GA GX");
-            GeneticAlgortihm geneticAlgortihm = new GeneticAlgortihm();
-            front = geneticAlgortihm.run(instance, 50, 20, 1, crossoverType.greedy);
-            foreach (var sol in front)
-                Console.WriteLine(sol);
+            //Console.WriteLine();
+            //Console.WriteLine("GA GX");
+            //GeneticAlgortihm geneticAlgortihm = new GeneticAlgortihm();
+            //front = geneticAlgortihm.run(instance, 50, 20, 1, crossoverType.greedy);
+            //foreach (var sol in front)
+            //    Console.WriteLine(sol);
 
-            Console.WriteLine();
-            Console.WriteLine("GA OX");
-            geneticAlgortihm = new GeneticAlgortihm();
-            front = geneticAlgortihm.run(instance, 50, 20, 1, crossoverType.order);
-            foreach (var sol in front)
-                Console.WriteLine(sol);
+            //Console.WriteLine();
+            //Console.WriteLine("GA OX");
+            //geneticAlgortihm = new GeneticAlgortihm();
+            //front = geneticAlgortihm.run(instance, 50, 20, 1, crossoverType.order);
+            //foreach (var sol in front)
+            //    Console.WriteLine(sol);
 
-            Console.WriteLine("GA GX new rng");
-            geneticAlgortihm = new GeneticAlgortihm();
-            front = geneticAlgortihm.run(instance, 50, 20, 1, crossoverType.greedy, 2);
-            foreach (var sol in front)
-                Console.WriteLine(sol);
+            //Console.WriteLine("GA GX new rng");
+            //geneticAlgortihm = new GeneticAlgortihm();
+            //front = geneticAlgortihm.run(instance, 50, 20, 1, crossoverType.greedy, 2);
+            //foreach (var sol in front)
+            //    Console.WriteLine(sol);
 
             Console.WriteLine();
             Console.WriteLine("GA OX new rng");
-            geneticAlgortihm = new GeneticAlgortihm();
-            front = geneticAlgortihm.run(instance, 50, 20, 1, crossoverType.order, 2);
-            foreach (var sol in front)
-                Console.WriteLine(sol);
+            GeneticAlgortihm geneticAlgortihm = new GeneticAlgortihm();
+            front = geneticAlgortihm.run(instance, 500, 100, 1, crossoverType.order, 2);
+            fronts.Add(new List<Solution>(front));
+            //foreach (var sol in front)
+            //    Console.WriteLine(sol);
+            var h = instance.hvis(fronts);
+            Console.WriteLine("hvies\n" + string.Join("\n", h));
         }
     }
 }
