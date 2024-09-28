@@ -10,10 +10,21 @@
             //int [] pi = {-1,1,-1};
             var pi = instance.getRandom(1);
             var result = instance.evaluate(pi);
+            Console.WriteLine(string.Join(" ", pi));
+            Console.WriteLine($"f1(pi):{result[0]}, f2(pi):{result[1]}");
+            pi = instance.getRandom(1, 2);
+            result = instance.evaluate(pi);
+            Console.WriteLine(string.Join(" ", pi));
             Console.WriteLine($"f1(pi):{result[0]}, f2(pi):{result[1]}");
             Greedy greedy = new Greedy();
-            var front = greedy.run(instance, Greedy.SortByDeadlinesInc);
-            Console.WriteLine("Greedy");
+            var front = greedy.run(instance, Greedy.SortDiffDeadlinesAndArrivalByPiorities);
+            Console.WriteLine("Greedy old");
+            foreach (var sol in front)
+                Console.WriteLine(sol);
+            Console.WriteLine();
+
+            front = greedy.run(instance, Greedy.SortArrivalDiffAndPioritiesAndDiffByDeadlinesAndWeightsRev);
+            Console.WriteLine("Greedy new");
             foreach (var sol in front)
                 Console.WriteLine(sol);
             Console.WriteLine();
@@ -36,18 +47,36 @@
             //GreedyTrail trail = new GreedyTrail();
             Console.WriteLine("TS");
             TabuSearch search = new TabuSearch();
-            front =  search.run(instance, 50);
+            front = search.run(instance, 50);
             foreach (var sol in front)
                 Console.WriteLine(sol);
 
             Console.WriteLine();
-            Console.WriteLine("GA");
+            Console.WriteLine("GA GX");
             GeneticAlgortihm geneticAlgortihm = new GeneticAlgortihm();
-            front = geneticAlgortihm.run(instance, 50);
+            front = geneticAlgortihm.run(instance, 50, 20, 1, crossoverType.greedy);
             foreach (var sol in front)
                 Console.WriteLine(sol);
 
+            Console.WriteLine();
+            Console.WriteLine("GA OX");
+            geneticAlgortihm = new GeneticAlgortihm();
+            front = geneticAlgortihm.run(instance, 50, 20, 1, crossoverType.order);
+            foreach (var sol in front)
+                Console.WriteLine(sol);
 
+            Console.WriteLine("GA GX new rng");
+            geneticAlgortihm = new GeneticAlgortihm();
+            front = geneticAlgortihm.run(instance, 50, 20, 1, crossoverType.greedy, 2);
+            foreach (var sol in front)
+                Console.WriteLine(sol);
+
+            Console.WriteLine();
+            Console.WriteLine("GA OX new rng");
+            geneticAlgortihm = new GeneticAlgortihm();
+            front = geneticAlgortihm.run(instance, 50, 20, 1, crossoverType.order, 2);
+            foreach (var sol in front)
+                Console.WriteLine(sol);
         }
     }
 }

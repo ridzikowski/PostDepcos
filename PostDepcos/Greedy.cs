@@ -20,6 +20,16 @@ namespace PostDepcos
         public static int rev = 1;
 
 
+        public static int[] SortArrivalDiffAndPioritiesAndDiffByDeadlinesAndWeightsRev(Instance inst)
+        {
+            double[] array = new double[inst.n];
+            for (int i = 0; i < inst.n; ++i) array[i] = (inst.arrivals[i] * inst.weights[i] * inst.priorities[i]) / (inst.deadlines[i]* (inst.deadlines[i] - inst.arrivals[i]));
+
+            var sorted = array.Select((x, index) => new { x, index }).OrderBy(y => y.x).ToArray();
+            int[] orders = Enumerable.Range(0, inst.n).ToArray();
+            return sorted.Select(x => orders[x.index]).Reverse().ToArray();
+        }
+
         public static int[] SortDiffDeadlinesAndArrivalByPiorities(Instance inst)
         {
             double[] array = new double[inst.n];

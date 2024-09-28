@@ -127,10 +127,12 @@ namespace PostDepcos
             return new List<int>() { totalTime, totalPenalty };
         }
 
-        public List<int> getRandom(int seed)
+        public List<int> getRandom(int seed, int type = 1)
         {
-            List<int> pi = Enumerable.Repeat(0, n + v + 1).Select(x => -1).ToList();
-            
+            int num = n + v + 1;
+            if (type == 2) num = v + 1;
+            List<int> pi = Enumerable.Repeat(0, num).Select(x => -1).ToList();
+
             Random random = new Random(seed);
             int[] orders = Enumerable.Range(0, n).ToArray();
             random.Shuffle(orders);
@@ -142,34 +144,51 @@ namespace PostDepcos
             foreach (int order in orders)
             {
                 //Console.WriteLine(String.Join(" ", pi));
-                int w = weights[order];
-                int dest = destinations[order];
-                int travel = travelTimes[last, dest];
-                //if (maxR < readyTimes[order]) maxR = readyTimes[order];
-                int comeback = travelTimes[dest, hub];
-                int approximate = travelTimes[last, dest] + comeback + serviceTime;
-                if (dest != last) approximate += parkingTime;
-                if ((currentCapacity + w <= capacity) && (currentTime + approximate <= timeLimit))
+                if (type == 1)
                 {
-                    currentCapacity += w;
-                    if (dest != last) currentTime += parkingTime;
-                    currentTime += travelTimes[last, dest] + serviceTime;
-                    pi[idx] = order;
-                }
-                else
-                {
+
+                    int w = weights[order];
+                    int dest = destinations[order];
+                    int travel = travelTimes[last, dest];
+                    //if (maxR < readyTimes[order]) maxR = readyTimes[order];
+                    int comeback = travelTimes[dest, hub];
+                    int approximate = travelTimes[last, dest] + comeback + serviceTime;
+                    if (dest != last) approximate += parkingTime;
+                    if ((currentCapacity + w <= capacity) && (currentTime + approximate <= timeLimit))
+                    {
+                        currentCapacity += w;
+                        if (dest != last) currentTime += parkingTime;
+                        currentTime += travelTimes[last, dest] + serviceTime;
+                        pi[idx] = order;
+                    }
+                    else
+                    {
+                        idx++;
+                        pi[idx] = order;
+
+                        currentCapacity = w;
+                        currentTime = travelTimes[hub, dest] + serviceTime + parkingTime;
+                        //maxR = readyTimes[order];
+                    }
                     idx++;
-                    pi[idx] = order;
-                    
-                    currentCapacity = w;
-                    currentTime = travelTimes[hub, dest] + serviceTime + parkingTime;
-                    //maxR = readyTimes[order];
+                    last = dest;
                 }
-                idx++;
-                last = dest;
+                else if (type == 2)
+                {
+                    do
+                    {
+                        idx = random.Next(1, pi.Count - 1);
+                        pi.Insert(idx, order);
+                        var result = evaluate(pi);
+                        if (result[0] < int.MaxValue) break;
+                        pi.RemoveAt(idx);
+                    }while (true);
+                    
+                }
             }
             return pi;
         }
+
 
 
         public override string ToString()

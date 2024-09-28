@@ -8,11 +8,16 @@ using System.Threading.Tasks;
 
 namespace PostDepcos
 {
+    enum crossoverType
+    {
+        greedy,
+        order
+    }
     internal class GeneticAlgortihm
     {
         Random random;
         Instance instance;
-        public List<Solution> run(Instance inst, int maxIter = 20, int popSize = 20, int seed = 1)
+        public List<Solution> run(Instance inst, int maxIter = 20, int popSize = 20, int seed = 1, crossoverType crossoverType = crossoverType.greedy, int randomType = 1)
         {
             instance = inst;
             random = new Random(1);
@@ -20,15 +25,21 @@ namespace PostDepcos
             List<Solution> population = new List<Solution>();
             for (int i = 0; i < popSize; i++)
             {
-                var pi = instance.getRandom(i);
+                var pi = instance.getRandom(i, randomType);
+                //if (i == 0)
+                //{
+                //    Greedy greedy = new Greedy();
+                //    var f = greedy.run(instance, Greedy.SortDiffDeadlinesAndArrivalByPiorities);
+                //    pi = f[0].pi;
+                //}
                 var result = instance.evaluate(pi);
                 population.Add(new Solution() { pi = pi, crit1 = result[0], crit2 = result[1] });
             }
-
+            front = checkFront(population, front);
             for (int iter = 0; iter < maxIter; iter++)
             {
                 population = selection(population, (int)Math.Round(Math.Sqrt(popSize)));
-                population = crossover(population);
+                population = crossover(population, 1.0, crossoverType);
                 front = checkFront(population, front);
                 population = mutation(population);
                 front = checkFront(population, front);
@@ -87,7 +98,7 @@ namespace PostDepcos
 
             return parents;
         }
-        private List<Solution> crossover(List<Solution> population, double ratio = 1.0)
+        private List<Solution> crossover(List<Solution> population, double ratio = 1.0, crossoverType type = crossoverType.greedy)
         {
             List<Solution> childs = new List<Solution>();
 
@@ -103,6 +114,7 @@ namespace PostDepcos
                     List<int> offspring = new List<int>(parent.pi[i..j]);
                     if (offspring.Count == 0 || offspring[0] != -1) offspring.Insert(0, -1);
                     List<int> orders = Enumerable.Range(0, instance.n).ToList();
+                    if (type == crossoverType.order) orders = population[random.Next(population.Count)].pi;
                     orders = orders.Except(offspring).ToList();
                     
                     int currentCapacity = 0;
@@ -125,18 +137,25 @@ namespace PostDepcos
                         int min = int.MaxValue;
                         int order = -1;
                         int d = -1;
-                        foreach (int o in orders)
-                        {
-                            d = instance.destinations[o];
-                            //if (min > instance.travelTimes[last, o])
-                            if (min > instance.travelTimes[last, o] * instance.deadlines[o] / instance.priorities[o])
+                        if (type == crossoverType.greedy)
+                            foreach (int o in orders)
                             {
-                                //min = instance.travelTimes[last, o];
-                                min = instance.travelTimes[last, o] *  instance.deadlines[o]/instance.priorities[o];
-                                dest = d;
-                                order = o;
+                                d = instance.destinations[o];
+                                if (min > instance.travelTimes[last, o])
+                                    if (min > instance.travelTimes[last, o] * instance.deadlines[o] / instance.priorities[o])
+                                    {
+                                    min = instance.travelTimes[last, o];
+                                    min = instance.travelTimes[last, o] *  instance.deadlines[o]/instance.priorities[o];
+                                    dest = d;
+                                    order = o;
+                                }
                             }
+                        else if (type == crossoverType.order)
+                        {
+                            order = orders[0];
+                            dest = instance.destinations[order]; ;
                         }
+                        
                         int w = instance.weights[order];
                         int travel = instance.travelTimes[last, dest];
                         int comeback = instance.travelTimes[dest, instance.hub];
