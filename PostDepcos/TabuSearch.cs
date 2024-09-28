@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,8 +9,10 @@ namespace PostDepcos
 {
     internal class TabuSearch
     {
-        public List<Solution> run(Instance instance, int maxIter = 20)
+        public List<Solution> run(Instance instance, int timeLimit = 5)
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             Greedy greedy = new Greedy();
             List<Solution> front = greedy.run(instance, Greedy.SortDiffDeadlinesAndArrivalByPiorities);
 
@@ -32,9 +35,9 @@ namespace PostDepcos
             //}
 
             int cadence = (int)(Math.Sqrt(curr.pi.Count));
-
+           
             int iter = 0;
-            while (iter < maxIter)
+            while (stopwatch.Elapsed.TotalSeconds < timeLimit)
             {
                 F1.Clear();
                 F2.Clear();
@@ -82,7 +85,8 @@ namespace PostDepcos
                 }
                 iter++;
             }
-
+            stopwatch.Stop();
+            //Console.WriteLine($"Runtime: {stopwatch.Elapsed.TotalSeconds}");
             return front;
         }
     }

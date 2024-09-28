@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.AccessControl;
 using System.Text;
@@ -17,8 +18,10 @@ namespace PostDepcos
     {
         Random random;
         Instance instance;
-        public List<Solution> run(Instance inst, int maxIter = 20, int popSize = 20, int seed = 1, crossoverType crossoverType = crossoverType.greedy, int randomType = 1)
+        public List<Solution> run(Instance inst, int timeLimit = 5, int popSize = 20, int seed = 1, crossoverType crossoverType = crossoverType.greedy, int randomType = 1)
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             instance = inst;
             random = new Random(1);
             //List<List<Solution>> fronts = new List<List<Solution>>();
@@ -38,7 +41,7 @@ namespace PostDepcos
             }
             front = checkFront(population, front);
             //fronts.Add(new List<Solution>(front));
-            for (int iter = 0; iter < maxIter; iter++)
+            while (stopwatch.Elapsed.TotalSeconds < timeLimit)
             {
                 population = selection(population, (int)Math.Round(Math.Sqrt(popSize)));
                 population = crossover(population, 1.0, crossoverType);
@@ -49,6 +52,8 @@ namespace PostDepcos
             }
             //var h = instance.hvis(fronts);
             //Console.WriteLine("hvies " + string.Join("\n", h));
+            stopwatch.Stop();
+            Console.WriteLine($"Runtime: {stopwatch.Elapsed.TotalSeconds}");
             return front;
         }
 

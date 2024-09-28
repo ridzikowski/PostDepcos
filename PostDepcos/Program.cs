@@ -47,7 +47,7 @@
             //GreedyTrail trail = new GreedyTrail();
             Console.WriteLine("TS");
             TabuSearch search = new TabuSearch();
-            front = search.run(instance, 500);
+            front = search.run(instance, 5);
             fronts.Add(new List<Solution>(front));
             //foreach (var sol in front)
             //    Console.WriteLine(sol);
@@ -75,7 +75,7 @@
             Console.WriteLine();
             Console.WriteLine("GA OX new rng");
             GeneticAlgortihm geneticAlgortihm = new GeneticAlgortihm();
-            front = geneticAlgortihm.run(instance, 500, 100, 1, crossoverType.order, 2);
+            front = geneticAlgortihm.run(instance, 5, 100, 1, crossoverType.order, 2);
             fronts.Add(new List<Solution>(front));
             //foreach (var sol in front)
             //    Console.WriteLine(sol);
