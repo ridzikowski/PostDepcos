@@ -18,43 +18,89 @@ namespace PostDepcos
     {
         Random random;
         Instance instance;
-        public List<Solution> run(Instance inst, int timeLimit = 5, int popSize = 20, int seed = 1, crossoverType crossoverType = crossoverType.greedy, int randomType = 1)
+        public List<Solution> run(Instance inst, int timeLimit = 5, int popSize = 20, int seed = 1, crossoverType crossoverType = crossoverType.greedy, int populationType = 1)
         {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             instance = inst;
             random = new Random(1);
-            //List<List<Solution>> fronts = new List<List<Solution>>();
             List<Solution> front = new List<Solution>();
-            List<Solution> population = new List<Solution>();
-            for (int i = 0; i < popSize; i++)
-            {
-                var pi = instance.getRandom(i, randomType);
-                //if (i == 0)
-                //{
-                //    Greedy greedy = new Greedy();
-                //    var f = greedy.run(instance, Greedy.SortDiffDeadlinesAndArrivalByPiorities);
-                //    pi = f[0].pi;
-                //}
-                var result = instance.evaluate(pi);
-                population.Add(new Solution() { pi = pi, crit1 = result[0], crit2 = result[1] });
-            }
+            List<Solution> population = initializePopulation(popSize, populationType);
+            List<Solution> childs = new List<Solution>();
             front = checkFront(population, front);
-            //fronts.Add(new List<Solution>(front));
             while (stopwatch.Elapsed.TotalSeconds < timeLimit)
             {
                 population = selection(population, (int)Math.Round(Math.Sqrt(popSize)));
-                population = crossover(population, 1.0, crossoverType);
-                front = checkFront(population, front);
-                population = mutation(population);
-                front = checkFront(population, front);
-                //fronts.Add(new List<Solution>(front));
+                childs = crossover(population, 1.0, crossoverType);
+                front = checkFront(childs, front);
+                childs = mutation(childs);
+                front = checkFront(childs, front);
+                population = elite(population, childs, 0.03);
             }
-            //var h = instance.hvis(fronts);
-            //Console.WriteLine("hvies " + string.Join("\n", h));
             stopwatch.Stop();
-            Console.WriteLine($"Runtime: {stopwatch.Elapsed.TotalSeconds}");
             return front;
+        }
+
+        private List<Solution> elite(List<Solution> parents, List<Solution> childs, double ratio = 0.03)
+        {
+            List<Solution> population = new List<Solution>();
+            var ranks_parents = instance.TOPSIS(parents);
+            var ranks_childs = instance.TOPSIS(childs);
+
+            int number = (int)Math.Round(parents.Count * ratio);
+            for (int i = 0; i < number; i++)
+            {
+                var max = ranks_parents.Max();
+                var idx = ranks_parents.IndexOf(max);
+                population.Add(new Solution(parents[idx]));
+                parents.RemoveAt(idx);
+                ranks_parents.RemoveAt(idx);
+            }
+
+            for (int i = 0; i < number; i++)
+            {
+                var min = ranks_childs.Min();
+                var idx = ranks_childs.IndexOf(min);
+                childs.RemoveAt(idx);
+                ranks_childs.RemoveAt(idx);
+            }
+
+            foreach (var child in childs) population.Add(new Solution(child));
+
+            return population;
+        }
+        private List<Solution> initializePopulation(int size, int type)
+        {
+            Greedy greedy = new Greedy();
+            List<Solution> front_greedy = new List<Solution>();
+            if (type != 1 && type != 2)
+                front_greedy = greedy.run(instance, Greedy.SortDiffDeadlinesAndArrivalByPiorities);
+            List<Solution> population = new List<Solution>();
+            
+            foreach(Solution s in front_greedy) population.Add(new Solution(s));
+
+            for (int p = front_greedy.Count; p < size; p++)
+            {
+                List<int> pi;
+                if (type == 1 || type == 2) pi = instance.getRandom(p + 1, type);
+                else
+                {
+                    pi = new List<int>(front_greedy[random.Next(front_greedy.Count)].pi);
+                    int number = instance.n / 10;
+                    for (int k = 0; k < number; k++)
+                    {
+                        int i = random.Next(1, pi.Count - 1);
+                        int j = random.Next(1, pi.Count - 1);
+                        (pi[j], pi[j + 1]) = (pi[j + 1], pi[j]);
+                        var crit1 = instance.evaluate(pi)[0];
+                        if (crit1 == int.MaxValue) (pi[j], pi[j + 1]) = (pi[j + 1], pi[j]);
+                    }
+
+                }
+                var result = instance.evaluate(pi);
+                population.Add(new Solution() { pi = pi, crit1 = result[0], crit2 = result[1] });
+            }
+            return population;
         }
 
         private List<Solution> checkFront(List<Solution> population, List<Solution> front)
@@ -82,7 +128,7 @@ namespace PostDepcos
                 }
             }
 
-            return front;
+            return new List<Solution>(front);
         }
 
         private List<Solution> selection(List<Solution> population, int cupSize=4)

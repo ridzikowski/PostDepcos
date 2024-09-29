@@ -87,6 +87,7 @@ namespace PostDepcos
             List<int> pi = Enumerable.Repeat(0, instance.v + 1).Select(x => -1).ToList();
             List<int> F1 = new List<int>();
             List<int> F2 = new List<int>();
+            List<int> idxes = new List<int>();
             List<Solution> front = new List<Solution>();
             for (int o = 0; o < orders.Length; o++)
             {
@@ -95,19 +96,31 @@ namespace PostDepcos
                 {
                     F1.Clear();
                     F2.Clear();
-
+                    idxes.Clear();
                     pi.Insert(1, i);
                     var result = instance.evaluate(pi);
-                    F1.Add(result[0]);
-                    F2.Add(result[1]);
+                    if (result[0] < int.MaxValue)
+                    {
+                        F1.Add(result[0]);
+                        F2.Add(result[1]);
+                        idxes.Add(1);
+                    }
+
                     for (int j = 1; j < pi.Count - 2; j++)
                     {
                         (pi[j], pi[j + 1]) = (pi[j + 1], pi[j]);
                         result = instance.evaluate(pi);
-                        F1.Add(result[0]);
-                        F2.Add(result[1]);
+                        if(result[0] < int.MaxValue)
+                        {
+                            F1.Add(result[0]);
+                            F2.Add(result[1]);
+                            idxes.Add(j + 1);
+                        }
+                        
                     }
-                    int bestPos = instance.TOPSIS(F1, F2) + 1;
+                    if (F1.Count == 0) return null;
+
+                    int bestPos = idxes[instance.TOPSIS(F1, F2)]; //;instance.TOPSIS(F1, F2) + 1;
 
                     //double avg = 0;
                     //for (int j = 0; j < F1.Count; j++) avg += (double)F1[j] / F2[j];
@@ -130,7 +143,7 @@ namespace PostDepcos
                         (pi[j], pi[j + 1]) = (pi[j + 1], pi[j]);
                         bool dominated = false;
                         var result = instance.evaluate(pi);
-
+                        if (result[0] == int.MaxValue) continue;
                         foreach (var sol in front)
                             if (Instance.dominates(sol.crit1, sol.crit2, result[0], result[1]) || (sol.crit1 == result[0] && sol.crit2 == result[1]))
                             {

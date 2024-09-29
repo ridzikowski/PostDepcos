@@ -26,10 +26,10 @@ namespace PostDepcos
         public int parkingTime { get; set; }
         public int serviceTime { get; set; }
 
-        public Instance(int n, int m, int v, int seed, int capacity, int timeLimit, int parkingTime=2,int serviceTime = 2, int maxWeights = 5, int maxReadyTime = 20, double speed = 1.0)
+        public Instance(int n, int v,int l, int seed, int capacity=1000, int timeLimit=480, int parkingTime=2,int serviceTime = 2, double speed = 1.0)
         {
             this.n = n;
-            this.m = m;
+            this.m = l;
             this.v = v;
             
             Random rng = new Random(seed);
@@ -56,7 +56,7 @@ namespace PostDepcos
                 }
             }
             hub = rng.Next(3);
-
+            //this.m = rng.Next(50,344);
             List<int> location = new List<int>();
             while (location.Count < m)
             {
@@ -64,12 +64,12 @@ namespace PostDepcos
                 if (!location.Contains(val)) { location.Add(val); }
             }
             location.Sort();
-            arrivals = Enumerable.Repeat(0, n).Select(i => rng.Next(maxReadyTime)).ToArray();
+            arrivals = Enumerable.Repeat(0, n).Select(i => rng.Next(300, 720)).ToArray();
             destinations = new int[n];
             for (int i = 0; i < destinations.Length; i++) destinations[i] = location[rng.Next(0, location.Count)];
             priorities = Enumerable.Repeat(0, n).Select(i => rng.Next(1,10)).ToArray();
-            deadlines = Enumerable.Repeat(0, n).Select(i => arrivals[i] + rng.Next(60, 120)).ToArray();
-            weights = Enumerable.Repeat(0, n).Select(i => rng.Next(1, maxWeights)).ToArray();
+            deadlines = Enumerable.Repeat(0, n).Select(i => arrivals[i] + rng.Next(60, 180)).ToArray();
+            weights = Enumerable.Repeat(0, n).Select(i => rng.Next(1, 10)).ToArray();
             
         }
 

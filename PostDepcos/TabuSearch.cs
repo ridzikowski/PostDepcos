@@ -60,28 +60,31 @@ namespace PostDepcos
                         (curr.pi[i], curr.pi[j]) = (curr.pi[j], curr.pi[i]);
                     }
                 }
-                int pos = instance.TOPSIS(F1, F2);
-                //Console.WriteLine($"{I[pos]} {J[pos]}");
-                (curr.pi[I[pos]], curr.pi[J[pos]]) = (curr.pi[J[pos]], curr.pi[I[pos]]);
-                tabuList[I[pos], J[pos]] = iter + cadence;
-
-                bool dominated = false;
-                foreach (var sol in front)
-                    if (Instance.dominates(sol.crit1, sol.crit2, F1[pos], F2[pos]) || (sol.crit1 == F1[pos] && sol.crit2 == F2[pos]))
-                    {
-                        dominated = true;
-                        break;
-
-                    }
-                if (!dominated)
+                if (F1.Count > 0)
                 {
-                    for (int k = 0; k < front.Count; k++)
-                        if (Instance.dominates(F1[pos], F2[pos], front[k].crit1, front[k].crit2))
+                    int pos = instance.TOPSIS(F1, F2);
+                    //Console.WriteLine($"{I[pos]} {J[pos]}");
+                    (curr.pi[I[pos]], curr.pi[J[pos]]) = (curr.pi[J[pos]], curr.pi[I[pos]]);
+                    tabuList[I[pos], J[pos]] = iter + cadence;
+
+                    bool dominated = false;
+                    foreach (var sol in front)
+                        if (Instance.dominates(sol.crit1, sol.crit2, F1[pos], F2[pos]) || (sol.crit1 == F1[pos] && sol.crit2 == F2[pos]))
                         {
-                            front.RemoveAt(k);
-                            k--;
+                            dominated = true;
+                            break;
+
                         }
-                    front.Add(new Solution() { crit1 = F1[pos], crit2 = F2[pos], pi = new List<int>(curr.pi) });
+                    if (!dominated)
+                    {
+                        for (int k = 0; k < front.Count; k++)
+                            if (Instance.dominates(F1[pos], F2[pos], front[k].crit1, front[k].crit2))
+                            {
+                                front.RemoveAt(k);
+                                k--;
+                            }
+                        front.Add(new Solution() { crit1 = F1[pos], crit2 = F2[pos], pi = new List<int>(curr.pi) });
+                    }
                 }
                 iter++;
             }

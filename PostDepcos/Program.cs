@@ -1,86 +1,94 @@
-﻿namespace PostDepcos
+﻿using System.Diagnostics;
+using static System.Net.Mime.MediaTypeNames;
+
+namespace PostDepcos
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            List<List<Solution>> fronts = new List<List<Solution>>();
-            Instance instance = new Instance(20,50,10,1,100,240);
-            Console.WriteLine(instance.ToString());
-            //int [] pi = {-1,1,-1};
-            var pi = instance.getRandom(1);
-            var result = instance.evaluate(pi);
-            Console.WriteLine(string.Join(" ", pi));
-            Console.WriteLine($"f1(pi):{result[0]}, f2(pi):{result[1]}");
-            pi = instance.getRandom(1, 2);
-            result = instance.evaluate(pi);
-            Console.WriteLine(string.Join(" ", pi));
-            Console.WriteLine($"f1(pi):{result[0]}, f2(pi):{result[1]}");
-            Greedy greedy = new Greedy();
-            var front = greedy.run(instance, Greedy.SortDiffDeadlinesAndArrivalByPiorities);
-            Console.WriteLine("Greedy old");
-            foreach (var sol in front)
-                Console.WriteLine(sol);
+            //MainExperiment();
+            //PreExperiment(10);
+            GreedySpeed();
+        }
+
+        private static void GreedySpeed()
+        {
+            var ns = Enumerable.Range(1, 5).Select(x => x *1000).ToList();
+            var vs = new List<double>() { 0.05, 0.1, 0.2 };
+            foreach(var n in ns) 
+                foreach(var v in vs)
+                {
+                    Instance instance = new Instance(n, (int)Math.Round(n *v),50, 1);
+                    Greedy greedy = new Greedy();
+                    Stopwatch stopwatch = new Stopwatch();
+                    stopwatch.Start();
+                    var front = greedy.run(instance, Greedy.SortDiffDeadlinesAndArrivalByPiorities);
+                    stopwatch.Stop();
+                    Console.WriteLine($"n: {n}, v: {v} time: {stopwatch.Elapsed.TotalSeconds} s");
+                }
+        }
+
+        private static void MainExperiment()
+        {
+            
+        }
+
+        private static void PreExperiment(int runTimeLimit = 5)
+        {
+            List<int> ns = new List<int>() {1000};
+            List<int> vs = new List<int>() {50, 100, 200, 500 };
+            int number = 5;
+            int seed = 0;
+            int id = 0;
+            List<TestResult> results = new List<TestResult>();
+            foreach(int n in ns) 
+                    for(int i = 0; i < number; i++)
+                    {
+                        seed++;
+                        foreach (var v in vs)
+                        {
+                            results.Add(new TestResult() {id = id++, n = n, v = v, seed = seed, algorithm = Algorithm.TS });
+                            results.Add(new TestResult() { id = id++, n = n, v = v, seed = seed, algorithm = Algorithm.GA });
+                    }
+                    }
+            int numthreads = 10;
+            ParallelOptions opt = new ParallelOptions() { MaxDegreeOfParallelism = numthreads };
+            Parallel.For(0, numthreads, opt, idx =>
+            {
+                for (int v = idx; v < results.Count; v += numthreads)
+                {
+                    Instance instance = new Instance(results[v].n, results[v].v, 50, results[v].seed);
+                    Greedy greedy = new Greedy();
+                    var front_G = greedy.run(instance, Greedy.SortDiffDeadlinesAndArrivalByPiorities);
+                    if (front_G != null && front_G[0].crit1 < int.MaxValue)
+                        {
+                        List<List<Solution>> fronts = new List<List<Solution>>();
+                        fronts.Add(front_G);
+                        if (results[v].algorithm == Algorithm.TS)
+                        {
+                            TabuSearch search = new TabuSearch();
+                            var front_TS = search.run(instance, runTimeLimit);
+                            fronts.Add(front_TS);
+                            results[v].front = front_TS;
+                        } else if (results[v].algorithm == Algorithm.GA)
+                        {
+                            GeneticAlgortihm geneticAlgortihm = new GeneticAlgortihm();
+                            var front_GA = geneticAlgortihm.run(instance, runTimeLimit, 100, 1, crossoverType.order, 3);
+                            fronts.Add(front_GA);
+                            results[v].front = front_GA;
+                        }
+                        
+                        var h = instance.hvis(fronts);
+                        results[v].hvi = h[1]/h[0];
+                    }
+                    Console.WriteLine(results[v]);
+                }
+            }
+            );
+
             Console.WriteLine();
-            fronts.Add(new List<Solution>(front));
-            front = greedy.run(instance, Greedy.SortArrivalDiffAndPioritiesAndDiffByDeadlinesAndWeightsRev);
-            //Console.WriteLine("Greedy new");
-            //foreach (var sol in front)
-            //    Console.WriteLine(sol);
-            //Console.WriteLine();
-            //fronts.Add(new List<Solution>(front));
-            //Console.WriteLine(Instance.dominates(2, 2, 2, 2));
-
-            //var front = new List<Solution>() { 
-            //    new Solution() {crit1 = 2, crit2 = 10 }, 
-            //    new Solution() { crit1 = 3, crit2 = 7 },
-            //    new Solution() {crit1 = 5, crit2 = 5 },
-            //    new Solution() {crit1 = 6, crit2 = 4 },
-            //    new Solution() {crit1 = 10, crit2 = 3 }
-            //};
-            //var x = instance.hvi(front, 12, 12);
-            //Console.WriteLine(x);
-
-            //var t = instance.TOPSIS(new List<int>() { 2, 3, 5, 6, 10 }, new List<int>() { 10, 7, 5, 4, 3 });
-            //Console.WriteLine(t);
-
-            //GreedyTrail trail = new GreedyTrail();
-            Console.WriteLine("TS");
-            TabuSearch search = new TabuSearch();
-            front = search.run(instance, 5);
-            fronts.Add(new List<Solution>(front));
-            //foreach (var sol in front)
-            //    Console.WriteLine(sol);
-
-            //Console.WriteLine();
-            //Console.WriteLine("GA GX");
-            //GeneticAlgortihm geneticAlgortihm = new GeneticAlgortihm();
-            //front = geneticAlgortihm.run(instance, 50, 20, 1, crossoverType.greedy);
-            //foreach (var sol in front)
-            //    Console.WriteLine(sol);
-
-            //Console.WriteLine();
-            //Console.WriteLine("GA OX");
-            //geneticAlgortihm = new GeneticAlgortihm();
-            //front = geneticAlgortihm.run(instance, 50, 20, 1, crossoverType.order);
-            //foreach (var sol in front)
-            //    Console.WriteLine(sol);
-
-            //Console.WriteLine("GA GX new rng");
-            //geneticAlgortihm = new GeneticAlgortihm();
-            //front = geneticAlgortihm.run(instance, 50, 20, 1, crossoverType.greedy, 2);
-            //foreach (var sol in front)
-            //    Console.WriteLine(sol);
-
-            Console.WriteLine();
-            Console.WriteLine("GA OX new rng");
-            GeneticAlgortihm geneticAlgortihm = new GeneticAlgortihm();
-            front = geneticAlgortihm.run(instance, 5, 100, 1, crossoverType.order, 2);
-            fronts.Add(new List<Solution>(front));
-            //foreach (var sol in front)
-            //    Console.WriteLine(sol);
-            var h = instance.hvis(fronts);
-            Console.WriteLine("hvies\n" + string.Join("\n", h));
+            foreach ( var result in results ) Console.WriteLine(result);
         }
     }
 }
