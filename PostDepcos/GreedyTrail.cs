@@ -18,7 +18,7 @@ namespace PostDepcos
             for (int seed = 0; seed < number; seed++)
             {
                 int it = 0;
-                Instance instance = new Instance(20, 20, seed);
+                Instance instance = new Instance(20, 20, 20, seed);
                 List<int> values = new List<int>() { -1, 0, 1 };
                 List<int> values2 = new List<int>() { -1, 1 };
                 
