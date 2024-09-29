@@ -36,7 +36,7 @@ namespace PostDepcos
             {
                 Directory.CreateDirectory("outputs");
             }
-            var ns = Enumerable.Range(1, 5).Select(x => x * 1000).ToList();
+            var ns = Enumerable.Range(1, 7).Select(x => x * 500).ToList();
             var vs = new List<double>() { 0.05, 0.1, 0.2 };
             var ls = new List<int>() { 75, 150, 300 };
             int number = 10;
