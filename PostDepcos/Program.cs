@@ -51,8 +51,7 @@ namespace PostDepcos
                         {
                             seed++;
                             int v = (int)Math.Round(n * vr);
-                            results.Add(new TestResult() { id = id++, n = n, l = l, v = v, seed = seed, algorithm = Algorithm.TS, path = $"outputs/n{n}v{v}l{l}s{seed}a{Algorithm.TS}.txt" });
-                            results.Add(new TestResult() { id = id++, n = n, l = l, v = v, seed = seed, algorithm = Algorithm.GA, path = $"outputs/n{n}v{v}l{l}s{seed}a{Algorithm.GA}.txt" });
+                            results.Add(new TestResult() { id = id++, n = n, l = l, v = v, seed = seed, path = $"outputs/n{n}v{v}l{l}s{seed}.txt" });
                         }
             Console.WriteLine($" {Environment.ProcessorCount} cores");
             int numthreads = Math.Min(100, Environment.ProcessorCount);
@@ -71,24 +70,22 @@ namespace PostDepcos
                     {
                         List<List<Solution>> fronts = new List<List<Solution>>();
                         fronts.Add(front_G);
-                        if (results[v].algorithm == Algorithm.TS)
-                        {
-                            TabuSearch search = new TabuSearch();
-                            var front_TS = search.run(instance, runTimeLimit);
-                            fronts.Add(front_TS);
-                            results[v].front = front_TS;
-                        }
-                        else if (results[v].algorithm == Algorithm.GA)
-                        {
-                            GeneticAlgortihm geneticAlgortihm = new GeneticAlgortihm();
-                            var front_GA = geneticAlgortihm.run(instance, runTimeLimit, 100, 1, crossoverType.order, 3);
-                            fronts.Add(front_GA);
-                            results[v].front = front_GA;
-                        }
+                        TabuSearch search = new TabuSearch();
+                        var front_TS = search.run(instance, runTimeLimit);
+                        fronts.Add(front_TS);
+                        results[v].front = front_TS;
+                        
+                        GeneticAlgortihm geneticAlgortihm = new GeneticAlgortihm();
+                        var front_GA = geneticAlgortihm.run(instance, runTimeLimit, 100, 1, crossoverType.order, 3);
+                        fronts.Add(front_GA);
+                        results[v].front = front_GA;
 
                         var h = instance.hvis(fronts);
-                        results[v].hvi = h[1] / h[0];
-                        results[v].hvi_full = h[1];
+                        results[v].hvi_ratio_G_TS = h[1] / h[0];
+                        results[v].hvi_ratio_G_GA = h[2] / h[0];
+                        results[v].hvi_G = h[0];
+                        results[v].hvi_TS = h[1];
+                        results[v].hvi_GA = h[2];
                     }
                     Console.WriteLine(results[v]);
                     File.WriteAllText(results[v].path, results[v].ToString());
@@ -144,7 +141,7 @@ namespace PostDepcos
                         }
                         
                         var h = instance.hvis(fronts);
-                        results[v].hvi = h[1]/h[0];
+                        //results[v].hvi = h[1]/h[0];
                     }
                     Console.WriteLine(results[v]);
                 }
