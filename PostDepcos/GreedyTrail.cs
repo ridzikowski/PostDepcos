@@ -29,21 +29,19 @@ namespace PostDepcos
                         foreach (int w in values)
                             foreach (int p in values)
                                 foreach (int dma in values)
-                                    foreach (int rev in values2)
                                     {
                                         Greedy.af = a;
                                         Greedy.df = d;
                                         Greedy.wf = w;
                                         Greedy.pf = p;
                                         Greedy.dmaf = dma;
-                                        Greedy.rev = rev;
                                         Greedy greedy = new Greedy();
                                         var front = greedy.run(instance, Greedy.SortBySilly);
 
                                         fronts.Add(front);
                                         //Console.WriteLine($"it: {it}, af: {a}, df: {d}, wf: {w}, pf: {p}, dmaf: {dma}, rev: {rev}");
                                         if (seed == 0)
-                                            param.Add($"{a} {d} {w} {p} {dma} {rev}");
+                                            param.Add($"{a} {d} {w} {p} {dma}");
                                         it++;
                                         
                                     }

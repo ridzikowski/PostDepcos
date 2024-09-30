@@ -17,7 +17,6 @@ namespace PostDepcos
         public static int wf = 0;
         public static int pf = -1;
         public static int dmaf = 1;
-        public static int rev = 1;
 
 
         public static int[] SortArrivalDiffAndPioritiesAndDiffByDeadlinesAndWeightsRev(Instance inst)
@@ -57,7 +56,7 @@ namespace PostDepcos
                 double pd = (pf == -1 ? inst.priorities[i] : 1);
                 double dmad = (dmaf == -1 ? (inst.deadlines[i] - inst.arrivals[i]) : 1);
 
-                array[i] = (an * dn * wn * pn * dman) / (ad * dd * wd * pd * dmad) * rev;
+                array[i] = (an * dn * wn * pn * dman) / (ad * dd * wd * pd * dmad);
                 
             }
             var sorted = array.Select((x, index) => new { x, index }).OrderBy(y => y.x).ToArray();

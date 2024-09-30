@@ -8,9 +8,10 @@ namespace PostDepcos
     {
         static void Main(string[] args)
         {
-            MainExperiment();
+            // MainExperiment();
             //PreExperiment(10);
             //GreedySpeed();
+            GreedyTrail greedy = new GreedyTrail();
         }
 
         private static void GreedySpeed()
