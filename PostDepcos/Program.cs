@@ -8,10 +8,10 @@ namespace PostDepcos
     {
         static void Main(string[] args)
         {
-            // MainExperiment();
+            MainExperiment();
             //PreExperiment(10);
             //GreedySpeed();
-            GreedyTrail greedy = new GreedyTrail();
+            //GreedyTrail greedy = new GreedyTrail();
         }
 
         private static void GreedySpeed()
@@ -33,15 +33,15 @@ namespace PostDepcos
 
         private static void MainExperiment()
         {
-            if (!Directory.Exists("outputs"))
+            if (!Directory.Exists("outputs-half-time"))
             {
-                Directory.CreateDirectory("outputs");
+                Directory.CreateDirectory("outputs-half-time");
             }
             var ns = Enumerable.Range(1, 7).Select(x => x * 500).ToList();
             var vs = new List<double>() { 0.05, 0.1, 0.2 };
             var ls = new List<int>() { 75, 150, 300 };
             int number = 10;
-            double time = 0.1;
+            double time = 0.05;
             int seed = 0;
             int id = 0;
             List<TestResult> results = new List<TestResult>();
@@ -52,7 +52,7 @@ namespace PostDepcos
                         {
                             seed++;
                             int v = (int)Math.Round(n * vr);
-                            results.Add(new TestResult() { id = id++, n = n, l = l, v = v, seed = seed, path = $"outputs/n{n}v{v}l{l}s{seed}.txt" });
+                            results.Add(new TestResult() { id = id++, n = n, l = l, v = v, seed = seed, path = $"outputs-half-time/n{n}v{v}l{l}s{seed}.txt" });
                         }
             Console.WriteLine($" {Environment.ProcessorCount} cores");
             int numthreads = Math.Min(100, Environment.ProcessorCount);
