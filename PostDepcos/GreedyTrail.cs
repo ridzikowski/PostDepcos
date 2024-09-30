@@ -24,7 +24,7 @@ namespace PostDepcos
             {
                 int it = 0;
                 int n = ns[random.Next(ns.Count)];
-                dobule vr = vs[random.Next(vs.Count)];
+                double vr = vs[random.Next(vs.Count)];
                 int v = Math.Round(n * vr);
                 int l = ls[random.Next(ls.Count)];
 
