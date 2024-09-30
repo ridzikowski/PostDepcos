@@ -25,7 +25,7 @@ namespace PostDepcos
                 int it = 0;
                 int n = ns[random.Next(ns.Count)];
                 double vr = vs[random.Next(vs.Count)];
-                int v = Math.Round(n * vr);
+                int v = (int)Math.Round(n * vr);
                 int l = ls[random.Next(ls.Count)];
 
                 Instance instance = new Instance(n, v, l, seed);
