@@ -19,7 +19,7 @@ namespace PostDepcos
             var ns = Enumerable.Range(1, 5).Select(x => x * 500).ToList();
             var vs = new List<double>() { 0.05, 0.1, 0.2 };
             var ls = new List<int>() { 75, 150, 300 };
-            Random random = new Random(1)
+            Random random = new Random(1);
             for (int seed = 0; seed < number; seed++)
             {
                 int it = 0;
