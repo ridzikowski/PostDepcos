@@ -15,10 +15,19 @@ namespace PostDepcos
             int number = 1000;
             double[] avg = new double[486];
             List<string> param = new List<string>();
+
+            var ns = Enumerable.Range(1, 5).Select(x => x * 500).ToList();
+            var vs = new List<double>() { 0.05, 0.1, 0.2 };
+            var ls = new List<int>() { 75, 150, 300 };
+            Random random = new Random(1)
             for (int seed = 0; seed < number; seed++)
             {
                 int it = 0;
-                Instance instance = new Instance(20, 20, 20, seed);
+                int n = ns[random.Next(ns.Count)];
+                int v = vs[random.Next(vs.Count)];
+                int l = ls[random.Next(ls.Count)];
+
+                Instance instance = new Instance(n, v, l, seed);
                 List<int> values = new List<int>() { -1, 0, 1 };
                 List<int> values2 = new List<int>() { -1, 1 };
                 
