@@ -7,10 +7,10 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PostDepcos
 {
-    internal class GreedyTrail
+    internal class GreedyPreliminary
     {
 
-        public GreedyTrail() {
+        public GreedyPreliminary() {
 
             int number = 1000;
             double[] avg = new double[486];
@@ -46,10 +46,9 @@ namespace PostDepcos
                                         Greedy.pf = p;
                                         Greedy.dmaf = dma;
                                         Greedy greedy = new Greedy();
-                                        var front = greedy.run(instance, Greedy.SortBySilly);
+                                        var front = greedy.run(instance, Greedy.SortByParameters);
 
                                         fronts.Add(front);
-                                        //Console.WriteLine($"it: {it}, af: {a}, df: {d}, wf: {w}, pf: {p}, dmaf: {dma}, rev: {rev}");
                                         if (seed == 0)
                                             param.Add($"{a} {d} {w} {p} {dma}");
                                         it++;
@@ -59,11 +58,9 @@ namespace PostDepcos
                 var max = array.Max();
                 array = array.Select(x =>  x/max).ToList();
                 for (int i = 0; i < array.Count; i++) avg[i] += array[i];
-                //Console.WriteLine(String.Join("\n", array));
                 Console.Write($"{seed} ");
             }
             avg = avg.Select(x => x / number).ToArray();
-            //Console.WriteLine(string.Join("\n", avg));
             var maxHVI = avg.Max();
             var idx = Array.IndexOf(avg, maxHVI);
             Console.WriteLine(idx);

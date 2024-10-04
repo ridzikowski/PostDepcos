@@ -39,7 +39,7 @@ namespace PostDepcos
             return sorted.Select(x => orders[x.index]).ToArray();
         }
 
-        public static int[] SortBySilly(Instance inst)
+        public static int[] SortByParameters(Instance inst)
         {
             double[] array = new double[inst.n];
             for (int i = 0; i < inst.n;++i)
@@ -119,19 +119,8 @@ namespace PostDepcos
                     }
                     if (F1.Count == 0) return null;
 
-                    int bestPos = idxes[instance.TOPSIS(F1, F2)]; //;instance.TOPSIS(F1, F2) + 1;
+                    int bestPos = idxes[instance.TOPSIS(F1, F2)];
 
-                    //double avg = 0;
-                    //for (int j = 0; j < F1.Count; j++) avg += (double)F1[j] / F2[j];
-                    //avg /= F1.Count;
-                    //double bestVal = F1[0] * avg + F2[0];
-                    //int bestPos = 1;
-                    //for (int j = 1; j < F1.Count; j++)
-                    //    if (F1[j] * avg + F2[j] < bestVal)
-                    //    {
-                    //        bestVal = F1[j] * avg + F2[j];
-                    //        bestPos = j+1;
-                    //    }
                     pi.RemoveAt(pi.Count - 2);
                     pi.Insert(bestPos, i);
                 }

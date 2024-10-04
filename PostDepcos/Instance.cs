@@ -10,7 +10,7 @@ namespace PostDepcos
     internal class Instance
     {
         public int n {  get; set; }
-        public int m { get; set; }
+        public int l { get; set; }
 
         public int hub { get; set; }
         public int[] arrivals { get; set; }
@@ -29,7 +29,7 @@ namespace PostDepcos
         public Instance(int n, int v,int l, int seed, int capacity=1000, int timeLimit=480, int parkingTime=2,int serviceTime = 2, double speed = 1.0)
         {
             this.n = n;
-            this.m = l;
+            this.l = l;
             this.v = v;
             
             Random rng = new Random(seed);
@@ -56,9 +56,8 @@ namespace PostDepcos
                 }
             }
             hub = rng.Next(3);
-            //this.m = rng.Next(50,344);
             List<int> location = new List<int>();
-            while (location.Count < m)
+            while (location.Count < this.l)
             {
                 int val = rng.Next(3,347);
                 if (!location.Contains(val)) { location.Add(val); }
@@ -139,18 +138,15 @@ namespace PostDepcos
             int currentCapacity = 0;
             int currentTime = 0;
             int last = hub;
-            //int maxR = 0;
             int idx = 1;
             foreach (int order in orders)
             {
-                //Console.WriteLine(String.Join(" ", pi));
                 if (type == 1)
                 {
 
                     int w = weights[order];
                     int dest = destinations[order];
                     int travel = travelTimes[last, dest];
-                    //if (maxR < readyTimes[order]) maxR = readyTimes[order];
                     int comeback = travelTimes[dest, hub];
                     int approximate = travelTimes[last, dest] + comeback + serviceTime;
                     if (dest != last) approximate += parkingTime;
@@ -168,7 +164,6 @@ namespace PostDepcos
 
                         currentCapacity = w;
                         currentTime = travelTimes[hub, dest] + serviceTime + parkingTime;
-                        //maxR = readyTimes[order];
                     }
                     idx++;
                     last = dest;
@@ -194,7 +189,7 @@ namespace PostDepcos
         public override string ToString()
         {
             string str = string.Empty;
-            str += $"{n} x {m}\n";
+            str += $"{n} x {l}\n";
             str += "r: "+String.Join(" ", arrivals) + "\n";
             str += "d: " + String.Join(" ", deadlines) + "\n";
             str += "p: " + String.Join(" ", priorities) + "\n";

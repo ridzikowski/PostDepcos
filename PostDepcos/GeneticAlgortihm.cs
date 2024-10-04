@@ -26,26 +26,26 @@ namespace PostDepcos
             random = new Random(1);
             List<Solution> front = new List<Solution>();
             List<Solution> population = initializePopulation(popSize, populationType);
-            List<Solution> childs = new List<Solution>();
+            List<Solution> children = new List<Solution>();
             front = checkFront(population, front);
             while (stopwatch.Elapsed.TotalSeconds < timeLimit)
             {
                 population = selection(population, (int)Math.Round(Math.Sqrt(popSize)));
-                childs = crossover(population, 1.0, crossoverType);
-                front = checkFront(childs, front);
-                childs = mutation(childs);
-                front = checkFront(childs, front);
-                population = elite(population, childs, 0.03);
+                children = crossover(population, 1.0, crossoverType);
+                front = checkFront(children, front);
+                children = mutation(children);
+                front = checkFront(children, front);
+                population = selectNewPopulation(population, children, 0.03);
             }
             stopwatch.Stop();
             return front;
         }
 
-        private List<Solution> elite(List<Solution> parents, List<Solution> childs, double ratio = 0.03)
+        private List<Solution> selectNewPopulation(List<Solution> parents, List<Solution> children, double ratio = 0.03)
         {
             List<Solution> population = new List<Solution>();
             var ranks_parents = instance.TOPSIS(parents);
-            var ranks_childs = instance.TOPSIS(childs);
+            var ranks_children = instance.TOPSIS(children);
 
             int number = (int)Math.Round(parents.Count * ratio);
             for (int i = 0; i < number; i++)
@@ -59,13 +59,13 @@ namespace PostDepcos
 
             for (int i = 0; i < number; i++)
             {
-                var min = ranks_childs.Min();
-                var idx = ranks_childs.IndexOf(min);
-                childs.RemoveAt(idx);
-                ranks_childs.RemoveAt(idx);
+                var min = ranks_children.Min();
+                var idx = ranks_children.IndexOf(min);
+                children.RemoveAt(idx);
+                ranks_children.RemoveAt(idx);
             }
 
-            foreach (var child in childs) population.Add(new Solution(child));
+            foreach (var child in children) population.Add(new Solution(child));
 
             return population;
         }
@@ -155,7 +155,7 @@ namespace PostDepcos
         }
         private List<Solution> crossover(List<Solution> population, double ratio = 1.0, crossoverType type = crossoverType.greedy)
         {
-            List<Solution> childs = new List<Solution>();
+            List<Solution> children = new List<Solution>();
 
             foreach (Solution parent in population)
             {
@@ -240,37 +240,37 @@ namespace PostDepcos
 
                     var result = instance.evaluate(offspring);
                     Solution child = new Solution() {pi = offspring, crit1 = result[0], crit2 = result[1] };
-                    childs.Add(child);
+                    children.Add(child);
                 }
                 else
-                    childs.Add(new Solution(parent));
+                    children.Add(new Solution(parent));
             }    
 
-            return childs;
+            return children;
         }
         private List<Solution> mutation(List<Solution> population, double ratio = 0.15)
         {
-            List<Solution> mutants = new List<Solution>();
+            List<Solution> specimens = new List<Solution>();
 
             foreach (Solution parent in population)
             {
                 if (random.NextDouble() < ratio)
                 {
-                    Solution mutant = new Solution(parent);
-                    int i = random.Next(1, mutant.pi.Count - 1);
-                    int j = random.Next(1, mutant.pi.Count - 1);
-                    (mutant.pi[j], mutant.pi[j + 1]) = (mutant.pi[j + 1], mutant.pi[j]);
-                    var result = instance.evaluate(mutant.pi);
-                    mutant.crit1 = result[0];
-                    mutant.crit2 = result[1];
-                    if (mutant.crit1 < int.MaxValue) mutants.Add(mutant);
-                    else mutants.Add(new Solution(parent));
+                    Solution specimen = new Solution(parent);
+                    int i = random.Next(1, specimen.pi.Count - 1);
+                    int j = random.Next(1, specimen.pi.Count - 1);
+                    (specimen.pi[j], specimen.pi[j + 1]) = (specimen.pi[j + 1], specimen.pi[j]);
+                    var result = instance.evaluate(specimen.pi);
+                    specimen.crit1 = result[0];
+                    specimen.crit2 = result[1];
+                    if (specimen.crit1 < int.MaxValue) specimens.Add(specimen);
+                    else specimens.Add(new Solution(parent));
 
                 }
                 else
-                    mutants.Add(new Solution(parent));
+                    specimens.Add(new Solution(parent));
             }
-            return mutants;
+            return specimens;
         }
     }
 }
