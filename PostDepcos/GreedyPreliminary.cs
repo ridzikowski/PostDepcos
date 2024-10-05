@@ -13,7 +13,7 @@ namespace PostDepcos
         public GreedyPreliminary() {
 
             int number = 1000;
-            double[] avg = new double[486];
+            double[] avg = new double[243];
             List<string> param = new List<string>();
 
             var ns = Enumerable.Range(1, 5).Select(x => x * 500).ToList();
